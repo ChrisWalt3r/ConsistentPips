@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Account {
+  id              Int               @id @default(autoincrement())
+  authId          String?           @map("auth_id") @db.Uuid
+  name            String
+  description     String?
+  color           String?           @default("#4A90E2")
+  isActive        Boolean?          @default(true) @map("is_active")
+  createdAt       DateTime?         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime?         @default(now()) @map("updated_at") @db.Timestamptz(6)
+  startingBalance Decimal?          @default(0) @map("starting_balance") @db.Decimal
+  deletedMt5      DeletedMt5Entry[]
+  goals           Goal[]
+  habits          Habit[]
+  journalEntries  JournalEntry[]
+
+  @@unique([authId, name])
+  @@index([authId], map: "idx_accounts_auth")
+  @@map("accounts")
+}
+
+model JournalEntry {
+  id                       Int       @id @default(autoincrement())
+  title                    String
+  content                  String
+  moodRating               Int?      @map("mood_rating")
+  tags                     Json?
+  isPrivate                Boolean?  @default(true) @map("is_private")
+  accountId                Int?      @map("account_id")
+  imageUrl                 String?   @map("image_url")
+  imageFilename            String?   @map("image_filename")
+  beforeImageUrl           String?   @map("before_image_url")
+  afterImageUrl            String?   @map("after_image_url")
+  mt5Ticket                BigInt?   @map("mt5_ticket")
+  symbol                   String?
+  entryPrice               Decimal?  @map("entry_price") @db.Decimal
+  exitPrice                Decimal?  @map("exit_price") @db.Decimal
+  stopLoss                 Decimal?  @map("stop_loss") @db.Decimal
+  takeProfit               Decimal?  @map("take_profit") @db.Decimal
+  volume                   Decimal?  @db.Decimal
+  direction                String?
+  pnl                      Decimal?  @db.Decimal
+  commission               Decimal?  @db.Decimal
+  swap                     Decimal?  @db.Decimal
+  balance                  Decimal?  @db.Decimal
+  isPlanCompliant          Boolean?  @default(false) @map("is_plan_compliant")
+  planNotes                String?   @map("plan_notes")
+  createdAt                DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+  reasonMindset            String?   @map("reason_mindset")
+  followingPlan            Boolean?  @default(false) @map("following_plan")
+  emotionalState           String?   @map("emotional_state")
+  notes                    String?
+  mt5PositionId            String?   @map("mt5_position_id")
+  assetType                String?   @default("forex") @map("asset_type")
+  galleryImages            Json?     @default("[]") @map("gallery_images")
+  mt5ExitTicket            BigInt?   @map("mt5_exit_ticket")
+  executionTfImageUrl      String?   @map("execution_tf_image_url")
+  executionTfImageFilename String?   @map("execution_tf_image_filename")
+  pnlPercentage            Decimal?  @map("pnl_percentage") @db.Decimal
+  beforeImageFilename      String?   @map("before_image_filename")
+  afterImageFilename       String?   @map("after_image_filename")
+  account                  Account?  @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([accountId], map: "idx_journal_entries_auth")
+  @@index([createdAt], map: "idx_journal_entries_created_at")
+  @@index([assetType], map: "idx_journal_entries_asset_type")
+  @@index([mt5Ticket], map: "idx_journal_entries_mt5")
+  @@index([mt5PositionId], map: "idx_journal_entries_mt5_position")
+  @@index([mt5ExitTicket], map: "idx_journal_entries_mt5_exit")
+  @@index([accountId], map: "idx_journal_entries_account_id")
+  @@map("journal_entries")
+}
+
+model Goal {
+  id          Int       @id @default(autoincrement())
+  accountId   Int?      @map("account_id")
+  title       String
+  description String?
+  targetDate  DateTime? @map("target_date") @db.Date
+  isCompleted Boolean?  @default(false) @map("is_completed")
+  priority    Int?      @default(3)
+  createdAt   DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime? @default(now()) @map("updated_at") @db.Timestamptz(6)
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(6)
+  account     Account?  @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("goals")
+}
+
+model Habit {
+  id          Int        @id @default(autoincrement())
+  accountId   Int?       @map("account_id")
+  name        String
+  description String?
+  frequency   String
+  targetCount Int?       @default(1) @map("target_count")
+  isActive    Boolean?   @default(true) @map("is_active")
+  createdAt   DateTime?  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime?  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  habitLogs   HabitLog[]
+  account     Account?   @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("habits")
+}
+
+model HabitLog {
+  id             Int       @id @default(autoincrement())
+  habitId        Int       @map("habit_id")
+  completedCount Int?      @default(1) @map("completed_count")
+  logDate        DateTime  @map("log_date") @db.Date
+  notes          String?
+  createdAt      DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  habit          Habit     @relation(fields: [habitId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([habitId, logDate])
+  @@map("habit_logs")
+}
+
+model DeletedMt5Entry {
+  id            Int       @id @default(autoincrement())
+  mt5Ticket     BigInt?   @map("mt5_ticket")
+  mt5PositionId String?   @map("mt5_position_id")
+  mt5ExitTicket BigInt?   @map("mt5_exit_ticket")
+  accountId     Int?      @map("account_id")
+  deletedAt     DateTime? @default(now()) @map("deleted_at") @db.Timestamptz(6)
+  account       Account?  @relation(fields: [accountId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([mt5Ticket], map: "idx_deleted_mt5_ticket")
+  @@index([mt5PositionId], map: "idx_deleted_mt5_position")
+  @@index([mt5ExitTicket], map: "idx_deleted_mt5_exit_ticket")
+  @@map("deleted_mt5_entries")
+}
+
+model TradingPlan {
+  id        Int             @id @default(autoincrement())
+  authId    String          @map("auth_id") @db.Uuid
+  name      String
+  createdAt DateTime?       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime?       @default(now()) @map("updated_at") @db.Timestamptz(6)
+  criteria  PlanCriterion[]
+
+  @@index([authId], map: "idx_trading_plans_auth")
+  @@map("trading_plans")
+}
+
+model PlanCriterion {
+  id        Int         @id @default(autoincrement())
+  planId    Int         @map("plan_id")
+  text      String
+  checked   Boolean?    @default(false)
+  position  Int?        @default(0)
+  createdAt DateTime?   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime?   @default(now()) @map("updated_at") @db.Timestamptz(6)
+  plan      TradingPlan @relation(fields: [planId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([planId], map: "idx_plan_criteria_plan")
+  @@index([planId, position], map: "idx_plan_criteria_position")
+  @@map("plan_criteria")
+}
