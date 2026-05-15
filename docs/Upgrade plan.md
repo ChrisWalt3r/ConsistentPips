@@ -196,6 +196,8 @@ track prop rules and warnings in real time,
 show evaluation and funded progress in dedicated dashboards,
 automatically journal trades through brokerage sync,
 support subscriptions and payments through Pesapal,
+support affiliate and referral growth tracking,
+send notifications and scheduled reports,
 provide a polished, professional interface with room for AI insights later.
 6. Prop Firm Rule Engine & Guardrails
 
@@ -269,6 +271,21 @@ rule violations,
 and correlation between rule adherence and profitability.
 
 This should help users understand whether bad outcomes come from poor strategy, poor risk behavior, or both.
+
+6.7 Trading Rules and Strategies
+
+The app should also support user-defined trading rules and strategy tracking.
+
+This should allow traders to define:
+
+personal entry rules,
+setup filters,
+session rules,
+strategy tags,
+strategy notes,
+and performance tracking by strategy.
+
+This layer should help traders identify which approaches fit their account style and which ones should be avoided.
 
 7. Evaluation and Funding Dashboards
 
@@ -406,6 +423,19 @@ prop rule automation,
 AI insights,
 advanced analytics,
 and future community features.
+
+9.5 Affiliate Program
+
+The product should support an affiliate or referral system so partners can help grow ConsistentPips.
+
+The affiliate system should support:
+
+referral links or codes,
+referral attribution,
+commission tracking,
+payout tracking,
+affiliate performance reporting,
+and partner onboarding.
 10. Landing Page
 
 A full landing page should be added to make ConsistentPips easier to market and easier to understand.
@@ -490,6 +520,29 @@ cleaner forms,
 better empty states,
 better loading states,
 and better success/error messages.
+
+11.5 Analytics and Reporting
+
+The product should emphasize analytics instead of execution review screens.
+
+This area should show:
+
+performance analytics,
+trade quality trends,
+strategy comparisons,
+discipline patterns,
+and coaching-style insights.
+
+The app should also send notifications with weekly and monthly reports so traders can review progress without opening the app every day.
+
+These reports should summarize:
+
+profitability,
+discipline score,
+rule violations,
+account risk,
+strategy performance,
+and notable changes from the previous period.
 12. AI Insights and What-If Analysis
 
 AI should be added later, after the app has enough useful data.
@@ -596,6 +649,28 @@ The app should store connection records for brokerage sync so each user can reco
 13.7 Subscriptions
 
 Subscription data should be stored so plan status, expiry, and payment provider data can be tracked reliably.
+
+13.8 Trading Rules and Strategies
+
+The database should also support trading rules and strategies so the app can analyze how the trader actually operates.
+
+Trading rule records should store:
+
+rule name,
+account reference,
+time restrictions,
+session restrictions,
+setup filters,
+and notes.
+
+Strategy records should store:
+
+strategy name,
+strategy type,
+allowed instruments,
+preferred sessions,
+risk profile,
+and performance statistics.
 
 14. Backend and Service Expectations
 
