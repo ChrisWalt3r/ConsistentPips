@@ -11,7 +11,8 @@ import {
 import { accountsAPI, journalAPI } from '../services/api.js';
 import { useAuth } from './AuthContext.jsx';
 
-const STORAGE_KEY = 'bpj.currentAccountId';
+const getStorageKey = (userId) =>
+  userId ? `bpj.${userId}.currentAccountId` : 'bpj.currentAccountId';
 
 const AccountContext = createContext(null);
 
@@ -25,27 +26,29 @@ export const useAccount = () => {
   return context;
 };
 
-const readSavedAccountId = () => {
+const readSavedAccountId = (userId) => {
   if (typeof window === 'undefined') {
     return null;
   }
 
-  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const raw = window.localStorage.getItem(getStorageKey(userId));
   const parsed = Number(raw);
   return Number.isFinite(parsed) ? parsed : null;
 };
 
-const persistAccountId = (value) => {
+const persistAccountId = (userId, value) => {
   if (typeof window === 'undefined') {
     return;
   }
 
+  const key = getStorageKey(userId);
+
   if (value == null) {
-    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(key);
     return;
   }
 
-  window.localStorage.setItem(STORAGE_KEY, String(value));
+  window.localStorage.setItem(key, String(value));
 };
 
 export const AccountProvider = ({ children }) => {
@@ -69,7 +72,6 @@ export const AccountProvider = ({ children }) => {
       setAccounts([]);
       setCurrentAccount(null);
       setIsLoading(false);
-      persistAccountId(null);
       return [];
     }
 
@@ -86,7 +88,7 @@ export const AccountProvider = ({ children }) => {
       try {
         const response = await accountsAPI.getAccounts();
         const nextAccounts = response.data || [];
-        const savedId = readSavedAccountId();
+        const savedId = readSavedAccountId(userId);
         const resolvedAccount =
           nextAccounts.find((account) => account.id === savedId) ||
           nextAccounts[0] ||
@@ -100,7 +102,7 @@ export const AccountProvider = ({ children }) => {
         startTransition(() => {
           setCurrentAccount(resolvedAccount);
         });
-        persistAccountId(resolvedAccount?.id ?? null);
+        persistAccountId(userId, resolvedAccount?.id ?? null);
 
         return nextAccounts;
       } catch (error) {
@@ -114,7 +116,6 @@ export const AccountProvider = ({ children }) => {
 
         setAccounts([]);
         setCurrentAccount(null);
-        persistAccountId(null);
         return [];
       } finally {
         if (activeUserIdRef.current === userId) {
@@ -143,13 +144,13 @@ export const AccountProvider = ({ children }) => {
         startTransition(() => {
           setCurrentAccount(account);
         });
-        persistAccountId(account?.id ?? null);
+        persistAccountId(userId, account?.id ?? null);
       },
       async deactivateAccount() {
         startTransition(() => {
           setCurrentAccount(null);
         });
-        persistAccountId(null);
+        persistAccountId(userId, null);
       },
       async createAccount(accountData) {
         try {
@@ -160,7 +161,7 @@ export const AccountProvider = ({ children }) => {
             startTransition(() => {
               setCurrentAccount(response.data);
             });
-            persistAccountId(response.data.id);
+            persistAccountId(userId, response.data.id);
           }
 
           return { success: true, account: response.data };

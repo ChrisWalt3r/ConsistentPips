@@ -8,6 +8,7 @@ import {
   IoCopyOutline,
   IoKeyOutline,
   IoLogOutOutline,
+  IoPencilOutline,
   IoRefresh,
   IoStatsChartOutline,
   IoTrashOutline,
@@ -38,6 +39,7 @@ export default function SettingsPage() {
     switchAccount,
     deactivateAccount,
     createAccount,
+    updateAccount,
     deleteAccount,
     fetchAccounts,
     regenerateApiKey,
@@ -53,6 +55,9 @@ export default function SettingsPage() {
     starting_balance: '',
   });
   const [savingAccount, setSavingAccount] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [savingEdit, setSavingEdit] = useState(false);
   const [copiedKeyId, setCopiedKeyId] = useState(null);
   const [regeneratingKeyId, setRegeneratingKeyId] = useState(null);
   const [expandedApiKeyId, setExpandedApiKeyId] = useState(null);
@@ -104,6 +109,40 @@ export default function SettingsPage() {
       starting_balance: '',
     });
     setShowAddAccount(false);
+  };
+
+  const handleOpenEdit = (account) => {
+    setEditingAccount(account);
+    setEditForm({
+      name: account.name || '',
+      description: account.description || '',
+      color: account.color || '#4A90E2',
+      starting_balance: account.starting_balance ?? '',
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editForm.name.trim()) {
+      window.alert('Please enter an account name.');
+      return;
+    }
+
+    setSavingEdit(true);
+    const result = await updateAccount(editingAccount.id, {
+      name: editForm.name.trim(),
+      description: editForm.description.trim(),
+      color: editForm.color,
+      starting_balance: editForm.starting_balance !== '' ? Number(editForm.starting_balance) : null,
+    });
+    setSavingEdit(false);
+
+    if (!result.success) {
+      window.alert(result.error || 'Failed to update account.');
+      return;
+    }
+
+    setEditingAccount(null);
+    setEditForm({});
   };
 
   const handleToggleActiveAccount = async (account) => {
@@ -358,6 +397,14 @@ export default function SettingsPage() {
                   <button
                     type="button"
                     className="ghost-button"
+                    onClick={() => handleOpenEdit(account)}
+                  >
+                    <IoPencilOutline size={18} />
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className="ghost-button"
                     onClick={() => handleDeleteAccount(account)}
                   >
                     <IoTrashOutline size={18} />
@@ -486,6 +533,91 @@ export default function SettingsPage() {
                       color,
                     }))
                   }
+                >
+                  <span className="sr-only">Choose {color}</span>
+                </button>
+              ))}
+            </div>
+            <span className="helper-copy">
+              <IoColorPaletteOutline size={16} />
+              Used in the sidebar and account badges across the app.
+            </span>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={!!editingAccount}
+        title="Edit Account"
+        onClose={() => { setEditingAccount(null); setEditForm({}); }}
+        actions={
+          <>
+            <button
+              type="button"
+              className="ghost-button"
+              onClick={() => { setEditingAccount(null); setEditForm({}); }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="primary-button"
+              disabled={savingEdit}
+              onClick={handleSaveEdit}
+            >
+              {savingEdit ? 'Saving...' : 'Save Changes'}
+            </button>
+          </>
+        }
+      >
+        <div className="modal-form">
+          <label className="field">
+            <span>Account Name</span>
+            <input
+              type="text"
+              value={editForm.name || ''}
+              onChange={(event) =>
+                setEditForm((current) => ({ ...current, name: event.target.value }))
+              }
+              placeholder="ICT Live Account"
+            />
+          </label>
+
+          <label className="field">
+            <span>Description</span>
+            <input
+              type="text"
+              value={editForm.description || ''}
+              onChange={(event) =>
+                setEditForm((current) => ({ ...current, description: event.target.value }))
+              }
+              placeholder="Exness MT5 account"
+            />
+          </label>
+
+          <label className="field">
+            <span>Starting Balance</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={editForm.starting_balance ?? ''}
+              onChange={(event) =>
+                setEditForm((current) => ({ ...current, starting_balance: event.target.value }))
+              }
+              placeholder="3000"
+            />
+          </label>
+
+          <div className="field">
+            <span>Account Color</span>
+            <div className="color-palette">
+              {ACCOUNT_COLORS.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  className={`color-swatch ${editForm.color === color ? 'is-selected' : ''}`}
+                  style={{ background: color }}
+                  onClick={() => setEditForm((current) => ({ ...current, color }))}
                 >
                   <span className="sr-only">Choose {color}</span>
                 </button>
