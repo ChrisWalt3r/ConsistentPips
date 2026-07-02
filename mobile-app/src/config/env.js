@@ -1,4 +1,4 @@
-const DEFAULT_API_URL = 'https://web-journal-2r5u.onrender.com/api';
+const DEFAULT_API_URL = 'https://consistentpips.onrender.com/api';
 const DEFAULT_SUPABASE_URL = 'https://txhplfakaqyvnkuyikeb.supabase.co';
 const DEFAULT_SUPABASE_ANON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4aHBsZmFrYXF5dm5rdXlpa2ViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwMDU2MTksImV4cCI6MjA5ODU4MTYxOX0.VKzteomtXfRUl_1byqKnLLTcuAl5NNYh0i-bec9jNME';
