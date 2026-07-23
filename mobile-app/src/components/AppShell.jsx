@@ -6,6 +6,7 @@ import {
   IoCalendarOutline,
   IoHomeOutline,
   IoImagesOutline,
+  IoLayersOutline,
   IoListOutline,
   IoMenu,
   IoSettingsOutline,
@@ -49,6 +50,12 @@ const navItems = [
     to: '/account-growth',
     icon: IoBarChartOutline,
     match: (pathname) => pathname.startsWith('/account-growth'),
+  },
+  {
+    label: 'Bundles',
+    to: '/bundles',
+    icon: IoLayersOutline,
+    match: (pathname) => pathname.startsWith('/bundles'),
   },
   {
     label: 'Settings',

@@ -22,6 +22,7 @@ import EntryDetailPage from './pages/EntryDetailPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import CalendarPage from './pages/CalendarPage.jsx';
 import AccountGrowthPage from './pages/AccountGrowthPage.jsx';
+import BundlesPage from './pages/BundlesPage.jsx';
 import AccountJournalPage from './pages/AccountJournalPage.jsx';
 import ExecutionReviewPage from './pages/ExecutionReviewPage.jsx';
 import ImageViewerPage from './pages/ImageViewerPage.jsx';
@@ -77,6 +78,7 @@ const AppRoutes = () => {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/account-growth" element={<AccountGrowthPage />} />
+          <Route path="/bundles" element={<BundlesPage />} />
           <Route path="/accounts/:accountId/journal" element={<AccountJournalPage />} />
           <Route path="/execution-review" element={<ExecutionReviewPage />} />
         </Route>
