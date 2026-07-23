@@ -4,6 +4,7 @@ import {
   IoCalendarOutline,
   IoCheckmarkCircle,
   IoCloseCircle,
+  IoLayersOutline,
   IoList,
   IoRemoveCircle,
   IoTrophy,
@@ -21,6 +22,7 @@ import {
   getEntryPair,
 } from '../utils/tradeUtils.js';
 import { getEntryTradeDate } from '../utils/tradeDates.js';
+import { BUNDLE_SIZE, computeBundles } from '../utils/bundles.js';
 
 const initialAnalytics = {
   totalTrades: 0,
@@ -30,6 +32,7 @@ const initialAnalytics = {
   losses: 0,
   breakevens: 0,
   recentTrades: [],
+  currentBundleCount: 0,
 };
 
 const OUTCOME_RANGE_FILTERS = [
@@ -118,6 +121,7 @@ export default function HomePage() {
 
         const totalTrades = wins + losses + breakevens;
         const winRate = totalTrades > 0 ? Math.round((wins / totalTrades) * 100) : 0;
+        const { currentBundleTrades } = computeBundles(allEntries);
 
         setAnalytics({
           totalTrades,
@@ -126,6 +130,7 @@ export default function HomePage() {
           wins,
           losses,
           breakevens,
+          currentBundleCount: currentBundleTrades.length,
           recentTrades: [...allEntries]
             .sort((left, right) => {
               const leftDate = getEntryTradeDate(left) || new Date(left.created_at);
@@ -299,6 +304,24 @@ export default function HomePage() {
           </div>
           <span>This Week</span>
           <strong>{analytics.thisWeekTrades}</strong>
+        </article>
+
+        <article
+          className="hero-card hero-card--clickable"
+          role="button"
+          tabIndex={0}
+          onClick={() => navigate('/bundles')}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              navigate('/bundles');
+            }
+          }}
+        >
+          <div className="hero-card__icon">
+            <IoLayersOutline size={24} />
+          </div>
+          <span>Current Bundle</span>
+          <strong>{analytics.currentBundleCount}/{BUNDLE_SIZE}</strong>
         </article>
       </section>
 

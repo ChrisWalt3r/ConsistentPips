@@ -7,6 +7,10 @@ import {
   IoChevronForward,
   IoClipboardOutline,
   IoCashOutline,
+  IoCheckmarkCircle,
+  IoCloseCircle,
+  IoTrendingDown,
+  IoTrendingUp,
 } from 'react-icons/io5';
 import PageHeader from '../components/PageHeader.jsx';
 import EmptyState from '../components/EmptyState.jsx';
@@ -134,6 +138,30 @@ export default function CalendarPage() {
     setSelectedDateEntries(journalEntries[dateKey]?.entries || []);
   }, [journalEntries, selectedDate]);
 
+  const monthEntries = useMemo(
+    () => Object.values(journalEntries).flatMap((day) => day.entries),
+    [journalEntries]
+  );
+
+  const monthStats = useMemo(() => {
+    let followed = 0;
+    let notFollowed = 0;
+    let wins = 0;
+    let losses = 0;
+
+    monthEntries.forEach((entry) => {
+      const planStatus = getPlanStatus(entry);
+      if (planStatus === 'FOLLOWED') followed += 1;
+      if (planStatus === 'NOT_FOLLOWED') notFollowed += 1;
+
+      const outcome = getEntryOutcome(entry);
+      if (outcome === 'WIN') wins += 1;
+      if (outcome === 'LOSS') losses += 1;
+    });
+
+    return { followed, notFollowed, wins, losses };
+  }, [monthEntries]);
+
   const calendarDays = useMemo(() => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -243,6 +271,58 @@ export default function CalendarPage() {
             Plan
           </button>
         </div>
+
+        <section className="dashboard-hero calendar-month-metrics">
+          {viewMode === 'PLAN' ? (
+            <>
+              <article className="hero-card hero-card--success">
+                <div className="hero-card__icon">
+                  <IoCheckmarkCircle size={24} />
+                </div>
+                <span>Rules Followed</span>
+                <strong>{monthStats.followed}</strong>
+                <p>
+                  {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+                </p>
+              </article>
+
+              <article className="hero-card">
+                <div className="hero-card__icon">
+                  <IoCloseCircle size={24} />
+                </div>
+                <span>Rules Not Followed</span>
+                <strong>{monthStats.notFollowed}</strong>
+                <p>
+                  {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+                </p>
+              </article>
+            </>
+          ) : (
+            <>
+              <article className="hero-card hero-card--success">
+                <div className="hero-card__icon">
+                  <IoTrendingUp size={24} />
+                </div>
+                <span>Trades Won</span>
+                <strong>{monthStats.wins}</strong>
+                <p>
+                  {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+                </p>
+              </article>
+
+              <article className="hero-card">
+                <div className="hero-card__icon">
+                  <IoTrendingDown size={24} />
+                </div>
+                <span>Trades Lost</span>
+                <strong>{monthStats.losses}</strong>
+                <p>
+                  {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+                </p>
+              </article>
+            </>
+          )}
+        </section>
 
         <div className="calendar-grid">
           {dayNames.map((dayName) => (
